@@ -1,0 +1,166 @@
+//Comments work the exact same as C-like languages
+
+//The keyword Use is used to import files,like in the last post,the file name works as the name space
+//The keyword Import is used to import modules
+//Modules will be explained
+
+//Use the NameSpace::All to import all the contents
+Use Sys::{Hello::All,}
+Import Math
+
+//This Shows to how to make a class
+@Public
+Class SomeClass : AbstractClass, IInterface{
+	//You need to manually add Private,Internal,Protected or Public Attribute to Define the access of a variable
+	//The class Types are similar to C#,there is Abstract,Partial
+
+	//These are the following types available in scorpionest
+	/*
+	Int "The number of bits depends on your operating system"
+	Dec "Switches to float or double depending on how many bits your pc is"
+	Uint
+	Byte
+	Bool
+	Dyn "A type that allows dynamic objects,similar to coding in python or a similar language"
+	Nullable[] "A container that allows you to set a type as nullable"
+	Str
+	Char
+	
+	There are probably more types to come in the final product
+	*/
+
+
+
+	//Variables are Declared via a keyword,followed by their name and their type and value
+	//Mutable
+	@Private
+	Var _foodBar : Str = Str::Empty;	
+	//Immutable and Auto keyword(similar to the auto keyword from C++) 
+	@Private
+	Let _lasagna : Auto = 100;
+	//Const(only works with primitives and is the same as C#) and nullable Value Types
+	@Private
+	Const Sandwich : Char = 'a';
+	//Static Vars can have only 1 instance,to access static variables,you need ClassIdentifier::staticVariable,they work the same as C#
+	@Private
+	Static eggSalad : Nullable[Bool] = null;
+	//Attributes,to call one you must use a @ followed by the their name
+	@Private,Clamp(1,10)
+	Var ClampedDecimal : Dec = 0.2;
+
+	//Properities are created by the Prop keyword
+	@Public 
+	SomeProperity : Str = {get => FoodBar,set => FoodBar = value + "Hello" };
+	//You can Also create a Quick Readonly Properity
+	@Public 
+	Prop LasagnaProp : Auto = Get[Int](_lasagna);
+	//Quick get and set Access properites can also be made
+	@Public 
+	Prop EggSalad : Auto = GetSet[Nullable[Bool]](eggSalad);
+
+
+
+	//The val keyword is used to pass by value,also Functions can return values
+	@Public 
+	Fn SomeFunction(val num1 : Int,val num2 : Int) : Int{
+		return num1 + num2;
+	}
+
+	The ref keyword is used by to pass by reference,To make a function return no value we use the void keyword
+	@Public
+ 	Fn SomeFunction2(ref num : Int) : void{
+		num = 1;
+	}
+
+	// we can override Fnctions using the override keyword,these can be either virtual or Abstract Fnctions;
+	Pub override Fn OverrideFunction() : void => base.OverrideFunction();
+	//also as seen,we can have 1 line methods 
+
+	//Interface Functions must be Public,also you don't use Fn,you use the Interface Function's name 
+	@Public
+	InterfaceFunction() : void
+	{
+		FoodBar = If FoodBar == Str::Empty Else "Hello Guys!";
+		If ((true) And (!false Or true)){
+			FoodBar.Trim(",");
+			//The Following are the available collections
+			//Str
+			//Array[]
+			//Tuple[,]
+			//List[]
+			//Dict[,]
+			//Hash[,]
+			
+			//We can access and set,add and remove variables from collections like this
+			FoodBar.Get(0) = '1';
+			FoodBar.Add("1");
+			FoodBar.Remove("1");
+		}
+		//Also we print stuff to the console via the Log Keyword or Logl for new lines
+		Log("Hello World!");
+	}
+	
+	//We can create static Functions via the Static keyword,and also simplify Functions that only require 1 line using =>
+	@Public
+	//Generics can be made with a name between the 
+	Static Fn StaticFunction[T:Number](val amount : T) : T => amount + 1;
+
+	//As expected,extern Fnctions are made using the Extern keyword with the Extern attribute
+	@Public,Extern("Original Function")
+	Extern Fn ExternalFunction();
+
+	//We can define Constructors,Deconstructors,conversions and operators for classes using the Def keyword
+	Def SomeClass(val foodBar : Str){
+		_foodBar = foodBar;
+	}
+
+	//We can make reverse bools,negate numbers or create Deconstructors with !
+	Def !SomeClass(){
+		Log("Goodbye :(");
+	}
+}
+
+/*
+
+Here come modules,modules can either contain extensions,attributes or helpful functions
+
+modules can be the only thing in the file,and must start with the keyword "extend" followed by either "Attribute","Extension[]" or "Helper"
+
+modules can either be internal or public,and the access modifier attribute must be put before the extend keyword
+
+*/
+@Public
+extends Extension[SomeClass]
+
+
+//We can add additional Functions,but not additional Variables or Properities
+
+//We can use the Params[] Container to pass an infinite amount of objects as parameters,although it must be the last argument
+@Public 
+Fn ExtensionFunction(val uselessStuffForExample : Params[Dyn]) : bool{
+	//The When keyword takes multiple bools and checks for any falses,if detected,it returns from the method with the default value
+	When{
+	!false,
+	true
+	}
+
+	//For loops work the same as in kotlin and rust,except we use the Range or RangeInclusive Functions
+	For (i in RangeInclusive(1,10)){
+		Log(i);
+	}
+	//While loops work as expected
+	While (True){
+		Break;
+		//There also exists the Break keyword,the Skip keyword(similar to continue),Redo keyword(redos the current loop) and the Reloop keyword(Reloops the entire loop)
+	}
+	//Switch is intended to be faster and much more cleaner for checking single values similar to the C# variant and requires a constant value
+	Switch(1){
+		(1,2) => Logl(1),
+		3 => Logl(3),
+		4 => Logl(4),
+		_ => Logl("Default")
+	};
+	return true;
+}
+
+//There are other object types other than Classes,these are Structs(The same as in most languages),Enums(Same as in C# but can inherit a constant and if it inherits,it must have a value) and Cases(Sames as Enums in rust)

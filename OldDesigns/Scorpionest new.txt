@@ -1,0 +1,173 @@
+//Comments are made by 2 slashes
+
+//import files via the `use` keyword, `use` also similar to a more strict `#define`
+use std = import("std");
+//import all content inside via leaving `NS =`
+use import("sys");
+//importing supports destructuring
+use {{foo,bar.{resRetFunc,Point = Vec3}}} = import("lib").{foo,bar.{resRetFunc,Point = Vec3}};
+
+//all code is run inside the main function
+fun main() -> Unit{
+	//mutable variables are made by the `var` keyword,immutable ones are made via the `let`
+	var i = 1;
+	let b = true;
+	let s : StrLit = "Hello world";
+	
+
+	//basic math like C type languages
+	i += 4;
+	i = (i - 1) * 5;
+
+	//however,unlike other languages,you can't negate a numeric variable directly with -,instead use the `Neg` property
+	i = i.Neg;
+	
+	//Supported types
+	
+//	Ints and UInts like zig
+//	Float 16,32,64,80,128
+//	Bool
+//	Str and StrLit (string literal) and StrView (string view)
+//	Dyn (dynamic object that can change type, similar to programming in dynamically typed languages)
+//	T? (a return value that can either be a value or null)
+//	T!E (a return value that can either be an value or an error,will explaing handling errors later)
+//	T^ (a pointer that contains the memory address of a variable)
+//	VoidPtr (a void pointer, for C compat)
+//	AnyPtr (a pointer for any type)
+//	Ref[T] (a reference to a certain object, same as C++'s T&)
+//	Func(...) : R (a function object, can be passed as a parameter for events)
+//	Event(...) (same as C# events,but different implementation)
+	
+
+	//single booleans can be checked with either the `not` keyword if they aren't a function or value from a struct or with the `Not` property
+	if not false and b.not{
+		//Do something
+	}
+	elif not b{
+		//Do something else
+	}
+	else{
+		//Finally do something
+	}
+	
+	//result with possbile error
+	var res = resRetFunc();
+
+	//match statments are similar to jai
+	if res is {
+		value!_ => puts(f"${value}"),
+		_!err => return err,
+	}
+
+	//while loops, can be named and others can also be named
+	will :while false{
+		nope();
+		
+		stop: will;//break in other languages,can also break out of blocks
+	}
+
+	//arrays in use, also static functions are called with .
+	let names = Array( mutStr).create(std.heap.allocator, {"Brad", "Tyler", "Tracy", "Maria"});
+
+	//supported collections are
+	
+//	Array(T)
+//	List(T)
+//	(T1, T2, T3) (Tuples)
+//	Dict(K,V)
+//	Set(T)
+	
+
+	//for loops
+	for name in names {
+		puts(name);
+	}
+
+	//use `Range` function to get a range,if you want inclusion then use `RangeIncl`
+	for j in range(1, 100){
+		i += j;
+	}
+	
+	//Collections use colName(x) to access an index,for example
+	let arr_val1 = names(0);
+	//is the same as
+	let arr_val2 = names.get(1);
+	
+	names(2) = "Leona";
+
+	//example of class creation
+	let p_var = Point(1,2,3);
+	
+	//example of pointer creation, this will only live till the end of main,raw pointer creation is unsafe and can only be used in unsafe contexts
+	let p_ptr = std.heap.basic_allocator.new_scoped(Point,(4, 5, 6));
+	//use `scope` to create a Unique Pointer or `ref` to create a Shared Pointer,this only works with pointers 
+	let i = p_ptr.^;//deref the pointer
+	
+	std.heap.basic_allocator.del(p_ptr);//useless for now,extremely useful in unsafe contexts
+	
+	return;//returns success
+}
+
+//Structs and traits
+
+Animal :: trait{
+   fun MakeNoise();
+}
+
+
+Dog :: struct(let pup : Bool){
+	//Traits and functions can be added via
+
+	//functions that start with an untyped `this` become methods,can be used dog.cute(), use `this^` or `ref this` for reference,
+	fun cute(val this) : Bool{
+		return this.pup;
+	}
+
+
+	//Traits can be implemented directly
+	impl Animal for Self{
+		fun make_noise(){
+			puts("Woof!");
+		}
+	}
+	
+	//getters and setters,should only be used when needed to check for object change
+	age:u8? {
+		set(new_value){
+			age = new_value;
+		}
+		get{
+			//tenary if statments
+			return if age > 30: null else age; 
+		}
+	},
+	breed: enum[u2]{German,Golden,Misc},//enums,can also have functions and traits
+}
+
+Cat :: struct(var scratches := false);
+
+impl Animal for Cat{
+   fun make_noise(){
+	puts("Meow?");
+   }
+}
+
+
+impl Cat{
+   fun scratch(ref scratchable : Dyn = 1){
+	if scratchable is Str and scratchable.contains("hiss"){
+		return
+	}
+	//String concat
+	puts(f"Scratched ${scratchable}!!!");
+   }
+}
+
+//Extending, meant for extending types you don't own, only useful with a type we don't own
+extend Cat{
+
+	fun meow(this){
+		this.make_noise();
+	}
+}
+
